@@ -2,65 +2,49 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Quà Tặng 8/3 - The Pizza Company</title>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* ================= CÀI ĐẶT CHUNG ================= */
+        /* ================= CÀI ĐẶT CHUNG VÀ SỬA LỖI IOS ================= */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
+        /* Ngăn cuộn trang, tránh lỗi thanh địa chỉ của iOS Safari */
         html, body {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%; 
+            overflow: hidden; 
+            position: fixed; /* Cố định chống bounce trên iOS */
         }
 
         body {
             font-family: 'Nunito', sans-serif;
-            overflow: hidden; 
-            position: relative; display: flex; justify-content: center; align-items: center;
-            /* Màu nền trơn cho iOS */
-            background-color: #f06292; 
-            transition: background-color 1.5s ease-in-out;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        /* Lớp nền Gradient xịn cho Android và Máy tính */
-        body::before {
-            content: "";
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(135deg, #f06292 0%, #ab47bc 50%, #7e57c2 100%);
-            z-index: -2; pointer-events: none;
-        }
-
-        body::after {
-            content: "";
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(to bottom, #1d0f28, #2a163a, #4a2d59 80%, #6e4479);
-            z-index: -1; opacity: 0; pointer-events: none;
+        /* TẠO CÁC LỚP NỀN THẬT (KHÔNG DÙNG ::BEFORE/::AFTER ĐỂ TRÁNH LỖI TRẮNG MÀN HÌNH) */
+        .bg-layer {
+            position: absolute;
+            inset: 0; /* Thay thế top/left/right/bottom: 0 */
+            z-index: -2;
             transition: opacity 1.5s ease-in-out;
         }
 
-        .bg-step1 { }
-        .bg-step2::after { opacity: 1; }
-
-        /* ========= ĐẶC TRỊ RIÊNG CHO HỆ ĐIỀU HÀNH iOS ========= */
-        @supports (-webkit-touch-callout: none) {
-            /* Ẩn hoàn toàn các lớp gradient ảo gây lỗi trắng màn hình trên iPhone */
-            body::before, body::after {
-                display: none !important;
-            }
-            
-            /* Thay bằng nền màu tĩnh (solid color) - Đảm bảo 100% an toàn trên iOS */
-            body.bg-step1 {
-                background-color: #f06292; /* Màu hồng tĩnh */
-            }
-            
-            body.bg-step2 {
-                background-color: #2a163a; /* Màu đêm đen tím tĩnh */
-            }
+        /* Nền màn chờ (Hồng - Tím) */
+        #bg-layer-1 {
+            background: linear-gradient(135deg, #f06292 0%, #ab47bc 50%, #7e57c2 100%);
+            z-index: -2;
         }
 
+        /* Nền trời đêm (Ẩn lúc đầu) */
+        #bg-layer-2 {
+            background: linear-gradient(to bottom, #1d0f28, #2a163a, #4a2d59 80%, #6e4479);
+            z-index: -1;
+            opacity: 0; 
+        }
+
+        /* Hiệu ứng mượt mà giữa các cảnh */
         .screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute; inset: 0;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             transition: all 1.2s cubic-bezier(0.25, 0.8, 0.25, 1);
             opacity: 1; transform: translateY(0) scale(1);
@@ -72,7 +56,7 @@
             transform: translateY(40px) scale(0.95); z-index: -1; 
         }
 
-        #fly-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 15; }
+        #fly-container { position: absolute; inset: 0; pointer-events: none; z-index: 15; overflow: hidden; }
 
         /* ================= STEP 1: MÀN HÌNH CHỜ ================= */
         .step1-content { text-align: center; color: white; display: flex; flex-direction: column; align-items: center; }
@@ -92,7 +76,7 @@
         .btn-open:hover { background: white; color: #ab47bc; font-weight: bold; transform: scale(1.05); }
 
         /* ================= STEP 2: BÓ HOA & PHONG BÌ ================= */
-        #stars { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        #stars { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
         .star { position: absolute; background: white; border-radius: 50%; animation: twinkle infinite alternate; }
 
         .bouquet-container {
@@ -114,7 +98,7 @@
 
         /* ================= STEP 3: BỨC THƯ ================= */
         .modal-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute; inset: 0;
             background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center;
             z-index: 30; transition: all 1s ease;
         }
@@ -123,7 +107,6 @@
             border-radius: 20px; position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.6);
             border: 4px dashed #f06292;
         }
-        /* Giảm nhẹ line-height ở bản PC cho gọn gàng hơn */
         .letter-content { font-family: 'Dancing Script', cursive; font-size: 28px; color: #d81b60; line-height: 1.6; min-height: 300px; }
         .cursor { display: inline-block; width: 3px; height: 25px; background-color: #d81b60; animation: blink 0.7s infinite; }
         .btn-continue {
@@ -147,12 +130,12 @@
 
         /* ================= STEP 4: ẢNH BAY ================= */
         .flying-petal {
-            position: fixed; bottom: -50px; z-index: 4; font-size: 20px;
+            position: absolute; bottom: -50px; z-index: 4; font-size: 20px;
             filter: drop-shadow(0 0 10px rgba(255,105,180,0.5)); animation: floatUpPetal linear forwards;
         }
 
         .floating-photo {
-            position: fixed; bottom: -250px; 
+            position: absolute; bottom: -250px; 
             z-index: 6; width: 140px; height: 180px; object-fit: cover;
             border: 8px solid white; border-bottom: 25px solid white;
             border-radius: 4px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
@@ -166,13 +149,8 @@
             #bouquet-img { max-width: 300px; }
             #tpc-logo { max-width: 220px; }
             .envelope { font-size: 24px; padding: 10px 20px; bottom: 25%; }
-            
-            /* Tối ưu khung thư: Thêm scroll nếu chữ quá dài, giảm padding */
             .letter-paper { padding: 25px 15px; width: 92%; max-height: 80vh; overflow-y: auto; }
-            
-            /* Tối ưu chữ: Giảm size chữ và ép chặt khoảng cách dòng */
             .letter-content { font-size: 20px; min-height: auto; line-height: 1.4; }
-            
             .floating-photo { width: 95px; height: 125px; border-width: 5px; border-bottom-width: 18px; }
             .thank-you-card { padding: 30px 20px; width: 90%; }
             .thank-you-card p { font-size: 18px; }
@@ -208,7 +186,10 @@
         }
     </style>
 </head>
-<body class="bg-step1" id="body-bg">
+<body>
+    
+    <div id="bg-layer-1" class="bg-layer"></div>
+    <div id="bg-layer-2" class="bg-layer"></div>
 
     <div id="fly-container"></div>
     <audio id="bg-music" src="nhac-8thang3-TPC.mp3" loop></audio>
@@ -226,6 +207,7 @@
         <div class="bouquet-container" id="bouquet-wrapper">
             <img id="bouquet-img" src="bo-hoa-to.png" alt="Bó hoa" onerror="this.style.display='none'; document.getElementById('alt-hoa').style.display='block';">
             <div id="alt-hoa" style="font-size: 150px; display: none;">💐</div>
+            <img id="tpc-logo" src="https://dongphucsongphu.com/logo/logo-the-pizza-company.html" alt="The Pizza Company">
             
             <div class="envelope" id="envelope">💌</div>
         </div>
@@ -257,7 +239,7 @@
 
         const letterText = "Thân gửi các chị em TPC,<br><br>Nhân ngày 8/3 - Ngày của những người phụ nữ tuyệt vời - chúng tôi xin gửi những lời chúc tốt đẹp nhất đến các quý cô nhà TPC CG.<br><br>Chúc các chị em luôn xinh đẹp rạng rỡ, hạnh phúc viên mãn và gặt hái được nhiều thành công trong công việc cũng như cuộc sống.<br><br>Cảm ơn vì đã luôn là những bông hoa tươi thắm nhất.<br><br>Happy Women's Day! ✨💖💐";
 
-        const bodyBg = document.getElementById('body-bg');
+        const bgLayer2 = document.getElementById('bg-layer-2');
         const step1 = document.getElementById('step1');
         const step2 = document.getElementById('step2');
         const btnOpen = document.getElementById('btn-open');
@@ -283,8 +265,8 @@
         // ================= XỬ LÝ SỰ KIỆN CHUYỂN BƯỚC =================
         btnOpen.addEventListener('click', () => {
             step1.classList.add('hidden'); 
-            bodyBg.classList.replace('bg-step1', 'bg-step2');
-            document.getElementById('bg-music').play().catch(e => console.log(e));
+            bgLayer2.style.opacity = '1'; // Kích hoạt nền đêm đè lên nền hồng (An toàn cho iOS)
+            document.getElementById('bg-music').play().catch(e => console.log("Trình duyệt chặn autoplay audio"));
             
             setTimeout(() => {
                 step2.classList.remove('hidden'); 
@@ -345,29 +327,25 @@
         // ================= LOGIC MỚI: BẮN TỪNG ẢNH MỘT, CHIA 3 LÀN CỐ ĐỊNH =================
         function startPhotoSequenceDeterministic() {
             let index = 0;
-            const numLanes = 3; // 3 làn đường an toàn
-            const totalAvailableWidth = 80; // Phạm vi từ 10vw đến 90vw
+            const numLanes = 3; 
+            const totalAvailableWidth = 80; 
             const laneWidth = totalAvailableWidth / numLanes;
 
             function spawnNextPhoto() {
                 if (index < photoUrls.length) {
-                    // Xoay vòng nhét ảnh vào 3 làn: 0, 1, 2, 0, 1, 2...
                     let laneIndex = index % numLanes;
                     let leftPos = 10 + (laneIndex * laneWidth) + (laneWidth / 2);
                     
-                    // Thêm rung lắc nhẹ ngang để không bị cứng ngắc như xếp gạch
                     let horizontalJitter = Math.random() * (laneWidth * 0.4) - (laneWidth * 0.2);
                     
                     spawnPhoto(photoUrls[index], leftPos + horizontalJitter);
                     
                     index++;
                     
-                    // KHOẢNG TRỄ CỐ ĐỊNH GIỮA CÁC ẢNH: 2000ms (2 giây)
                     const RELEASE_INTERVAL = 2000; 
 
                     setTimeout(spawnNextPhoto, RELEASE_INTERVAL);
                 } else {
-                    // Sau khi bắn ảnh cuối cùng, đợi 15 giây cho nó bay lên an toàn rồi hiện Cảm Ơn
                     setTimeout(() => {
                         thankYouCard.classList.remove('hidden');
                     }, 15000);
@@ -383,15 +361,12 @@
             
             img.style.left = leftPos + 'vw';
             
-            // Giảm góc nghiêng (-12 đến 12 độ)
             const rot = Math.random() * 24 - 12;
             img.style.setProperty('--start-rot', rot + 'deg');
             
-            // Giảm biên độ lắc lư ngang để không lấn làn
             const sway = Math.random() * 30 - 15;
             img.style.setProperty('--sway', sway);
             
-            // Tốc độ chậm & Nhất quán: 15 đến 18 giây
             const duration = (Math.random() * 3 + 15);
             img.style.animationDuration = duration + 's';
 
