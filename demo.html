@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quà Tặng 8/3 - The Pizza Company (Khắc phục đè ảnh)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* ================= CÀI ĐẶT CHUNG ================= */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Nunito', sans-serif;
+            overflow: hidden; width: 100vw; height: 100vh;
+            transition: background 1.5s ease-in-out;
+            position: relative; display: flex; justify-content: center; align-items: center;
+        }
+
+        .bg-step1 { background: linear-gradient(135deg, #f06292 0%, #ab47bc 50%, #7e57c2 100%); }
+        .bg-step2 { background: linear-gradient(to bottom, #1d0f28, #2a163a, #4a2d59 80%, #6e4479); }
+
+        .screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: all 1.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            opacity: 1; transform: translateY(0) scale(1);
+            z-index: 10; padding: 20px;
+        }
+
+        .hidden { 
+            opacity: 0 !important; pointer-events: none !important; 
+            transform: translateY(40px) scale(0.95); z-index: -1; 
+        }
+
+        #fly-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 15; }
+
+        /* ================= STEP 1: MÀN HÌNH CHỜ ================= */
+        .step1-content { text-align: center; color: white; display: flex; flex-direction: column; align-items: center; }
+        .circle-icon {
+            width: 150px; height: 150px; background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            font-size: 70px; margin-bottom: 30px; box-shadow: 0 0 30px rgba(255,255,255,0.4);
+            animation: pulse 2s infinite;
+        }
+        .step1-content h1 { font-family: 'Dancing Script', cursive; font-size: 45px; margin-bottom: 40px; text-shadow: 2px 2px 5px rgba(0,0,0,0.3); max-width: 90%; }
+        .btn-open {
+            background: rgba(255,255,255,0.2); color: white; border: 2px solid white;
+            padding: 15px 40px; font-size: 20px; font-family: 'Nunito', sans-serif;
+            border-radius: 40px; cursor: pointer; backdrop-filter: blur(5px);
+            transition: all 0.3s ease; pointer-events: auto;
+        }
+        .btn-open:hover { background: white; color: #ab47bc; font-weight: bold; transform: scale(1.05); }
+
+        /* ================= STEP 2: BÓ HOA & PHONG BÌ ================= */
+        #stars { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle infinite alternate; }
+
+        .bouquet-container {
+            position: relative; z-index: 5; text-align: center;
+            display: flex; flex-direction: column; align-items: center;
+            transition: opacity 1.5s ease;
+        }
+        
+        #bouquet-img { max-width: 450px; height: auto; filter: drop-shadow(0 20px 30px rgba(0,0,0,0.6)); z-index: 5; position: relative; animation: floatBouquet 5s ease-in-out infinite; transition: all 1s ease; }
+        
+        #tpc-logo { max-width: 320px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.3)); z-index: 5; display: none; opacity: 0; transition: opacity 2s ease; animation: floatBouquet 5s ease-in-out infinite; }
+
+        .envelope {
+            position: absolute; bottom: 30%; left: 50%; transform: translateX(-50%);
+            background: #ffe4e1; padding: 12px 25px; border-radius: 8px; font-size: 28px;
+            cursor: pointer; z-index: 10; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            border: 2px solid #ffb6c1; animation: pulse 1.5s infinite; pointer-events: auto;
+        }
+
+        /* ================= STEP 3: BỨC THƯ ================= */
+        .modal-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center;
+            z-index: 30; transition: all 1s ease;
+        }
+        .letter-paper {
+            background: #fff5f8; width: 90%; max-width: 600px; padding: 40px;
+            border-radius: 20px; position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            border: 4px dashed #f06292;
+        }
+        .letter-content { font-family: 'Dancing Script', cursive; font-size: 28px; color: #d81b60; line-height: 1.8; min-height: 300px; }
+        .cursor { display: inline-block; width: 3px; height: 25px; background-color: #d81b60; animation: blink 0.7s infinite; }
+        .btn-continue {
+            display: block; margin: 30px auto 0; background: #e91e63; color: white; border: none;
+            padding: 12px 35px; font-size: 18px; border-radius: 30px; cursor: pointer;
+            font-family: 'Nunito', sans-serif; opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
+        }
+
+        /* ================= KHUNG CHỮ CẢM ƠN ================= */
+        .thank-you-card {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #fff9f5; padding: 40px 50px; border-radius: 20px;
+            border: 4px dashed #ffb6c1; text-align: center; 
+            z-index: 50; 
+            animation: popInCard 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, 
+                       floatAndGlow 3s ease-in-out infinite 1.2s;
+        }
+        .thank-you-card h2 { font-family: 'Dancing Script', cursive; color: #ff69b4; font-size: 38px; margin-bottom: 15px; }
+        .thank-you-card p { font-size: 22px; color: #333; line-height: 1.6; font-family: 'Nunito', sans-serif; }
+        .signature { display: block; margin-top: 25px; font-family: 'Dancing Script', cursive; color: #d81b60; font-size: 28px; font-weight: bold; }
+
+        /* ================= STEP 4: ẢNH BAY (ĐÃ SỬA VẬT LÝ CSS) ================= */
+        .flying-petal {
+            position: fixed; bottom: -50px; z-index: 4; font-size: 20px;
+            filter: drop-shadow(0 0 10px rgba(255,105,180,0.5)); animation: floatUpPetal linear forwards;
+        }
+
+        .floating-photo {
+            position: fixed; bottom: -250px; 
+            z-index: 6; width: 140px; height: 180px; object-fit: cover;
+            border: 8px solid white; border-bottom: 25px solid white;
+            border-radius: 4px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            animation: flyUpAndSway linear forwards; transform-origin: center;
+        }
+
+        /* ================= MOBILE OPTIMIZATION ================= */
+        @media (max-width: 600px) {
+            .circle-icon { width: 120px; height: 120px; font-size: 60px; }
+            .step1-content h1 { font-size: 32px; margin-bottom: 30px; }
+            #bouquet-img { max-width: 300px; }
+            #tpc-logo { max-width: 220px; }
+            .envelope { font-size: 24px; padding: 10px 20px; bottom: 25%; }
+            .letter-paper { padding: 30px 20px; }
+            .letter-content { font-size: 22px; min-height: 250px; }
+            .floating-photo { width: 95px; height: 125px; border-width: 5px; border-bottom-width: 18px; }
+            .thank-you-card { padding: 30px 20px; width: 90%; }
+        }
+
+        /* ================= KEYFRAMES ================= */
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
+        @keyframes floatBouquet { 0% { transform: translateY(0); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0); } }
+        @keyframes twinkle { 0% { opacity: 0.2; } 100% { opacity: 1; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes floatUpPetal { 0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(-110vh) rotate(360deg) translateX(-50px); opacity: 0; } }
+        
+        /* Đã giảm độ lắc ngang ở keyframes để ảnh đi thẳng hơn */
+        @keyframes flyUpAndSway {
+            0% { transform: translateY(0) translateX(0) rotate(var(--start-rot)); opacity: 0; }
+            5% { opacity: 1; }
+            50% { transform: translateY(-70vh) translateX(calc(var(--sway) * 1px)) rotate(calc(var(--start-rot) * -1)); opacity: 1; }
+            85% { opacity: 1; }
+            100% { transform: translateY(-140vh) translateX(calc(var(--sway) * -0.5px)) rotate(var(--start-rot)); opacity: 0; }
+        }
+
+        /* ----- HIỆU ỨNG THẺ CẢM ƠN ----- */
+        @keyframes popInCard {
+            0% { opacity: 0; transform: translate(-50%, -10%) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -55%) scale(1.05); }
+            75% { transform: translate(-50%, -48%) scale(0.98); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        @keyframes floatAndGlow {
+            0% { transform: translate(-50%, -50%); box-shadow: 0 15px 50px rgba(0,0,0,0.5), 0 0 15px rgba(255,182,193,0.4); }
+            50% { transform: translate(-50%, -52%); box-shadow: 0 25px 50px rgba(0,0,0,0.4), 0 0 40px rgba(255,105,180,0.8), 0 0 20px rgba(255,20,147,0.5); }
+            100% { transform: translate(-50%, -50%); box-shadow: 0 15px 50px rgba(0,0,0,0.5), 0 0 15px rgba(255,182,193,0.4); }
+        }
+    </style>
+</head>
+<body class="bg-step1" id="body-bg">
+
+    <div id="fly-container"></div>
+    <audio id="bg-music" src="nhac-8thang3-TPC.mp3" loop></audio>
+
+    <div id="step1" class="screen">
+        <div class="step1-content">
+            <div class="circle-icon">💐</div>
+            <h1>Các người đẹp đã sẵn sàng mở quà chưa?</h1>
+            <button class="btn-open" id="btn-open">💌 Oki, mở quà thôi!</button>
+        </div>
+    </div>
+
+    <div id="step2" class="screen hidden">
+        <div id="stars"></div>
+        <div class="bouquet-container" id="bouquet-wrapper">
+            <img id="bouquet-img" src="bo-hoa-to.png" alt="Bó hoa" onerror="this.style.display='none'; document.getElementById('alt-hoa').style.display='block';">
+            <div id="alt-hoa" style="font-size: 150px; display: none;">💐</div>
+            <img id="tpc-logo" src="https://dongphucsongphu.com/logo/logo-the-pizza-company.html" alt="The Pizza Company">
+            
+            <div class="envelope" id="envelope">💌</div>
+        </div>
+    </div>
+
+    <div id="letterModal" class="modal-overlay hidden">
+        <div class="letter-paper">
+            <div class="letter-content"><span id="typed-text"></span><span class="cursor"></span></div>
+            <button class="btn-continue" id="btn-continue">Tiếp tục 💐</button>
+        </div>
+    </div>
+
+    <div id="thankYouCard" class="thank-you-card hidden">
+        <h2>From TPC with love</h2>
+        <p>Cảm ơn vì tất cả, đừng ngộ độc vì lời chúc pls :v<br>Happy Women's Day 8/3!</p>
+        <span class="signature">Hãy luôn xinh đẹp và hạnh phúc nhé! 💖</span>
+    </div>
+
+    <script>
+        const photoUrls = [
+            "8.3.2026_TPC/hà.jpg", "8.3.2026_TPC/thuỳ dương.png", "8.3.2026_TPC/huế.jpg",
+            "8.3.2026_TPC/kiều chi.jpg", "8.3.2026_TPC/kim anh bar.jpg", "8.3.2026_TPC/kim anh.jpg",
+            "8.3.2026_TPC/lan chu.jpg", "8.3.2026_TPC/linh cash.jpg", "8.3.2026_TPC/linh cht.jpg",
+            "8.3.2026_TPC/linh pasta.jpg", "8.3.2026_TPC/loan.jpg", "8.3.2026_TPC/nhi.jpg",
+            "8.3.2026_TPC/nhinh.jpg", "8.3.2026_TPC/như quỳnh.jpg", "8.3.2026_TPC/quỳnh anh.jpg",
+            "8.3.2026_TPC/thao phương.jpg", "8.3.2026_TPC/thương.jpg", "8.3.2026_TPC/hoài.jpg",
+            "8.3.2026_TPC/thuỷ quỳnh.jpg", "8.3.2026_TPC/tuyết.jpg", "8.3.2026_TPC/uyên.jpg"
+        ];
+
+        const letterText = "Thân gửi các chị em TPC,<br><br>Nhân ngày 8/3 - Ngày của những người phụ nữ tuyệt vời - chúng tôi xin gửi những lời chúc tốt đẹp nhất đến các quý cô nhà TPC CG.<br><br>Chúc các chị em luôn xinh đẹp rạng rỡ, hạnh phúc viên mãn và gặt hái được nhiều thành công trong công việc cũng như cuộc sống.<br><br>Cảm ơn vì đã luôn là những bông hoa tươi thắm nhất.<br><br>Happy Women's Day! ✨💖💐";
+
+        const bodyBg = document.getElementById('body-bg');
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const btnOpen = document.getElementById('btn-open');
+        const envelope = document.getElementById('envelope');
+        const letterModal = document.getElementById('letterModal');
+        const typedText = document.getElementById('typed-text');
+        const btnContinue = document.getElementById('btn-continue');
+        const flyContainer = document.getElementById('fly-container');
+        const bouquetWrapper = document.getElementById('bouquet-wrapper');
+        const thankYouCard = document.getElementById('thankYouCard');
+        
+        // Tạo sao đêm
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 50; i++) {
+            let star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = Math.random() * 3 + 'px'; star.style.height = star.style.width;
+            star.style.left = Math.random() * 100 + 'vw'; star.style.top = Math.random() * 100 + 'vh';
+            star.style.animationDuration = Math.random() * 3 + 1 + 's';
+            starsContainer.appendChild(star);
+        }
+
+        // ================= XỬ LÝ SỰ KIỆN CHUYỂN BƯỚC =================
+        btnOpen.addEventListener('click', () => {
+            step1.classList.add('hidden'); 
+            bodyBg.classList.replace('bg-step1', 'bg-step2');
+            document.getElementById('bg-music').play().catch(e => console.log(e));
+            
+            setTimeout(() => {
+                step2.classList.remove('hidden'); 
+                setInterval(spawnPetal, 400); 
+            }, 800); 
+        });
+
+        // Bấm phong bì mở thư ra ngay
+        envelope.addEventListener('click', () => {
+            envelope.style.opacity = '0';
+            setTimeout(() => { envelope.style.display = 'none'; }, 300);
+            
+            letterModal.classList.remove('hidden');
+            typeWriterEffect();
+        });
+
+        btnContinue.addEventListener('click', () => {
+            letterModal.classList.add('hidden'); 
+            
+            // Hiện logo TPC thay bó hoa
+            document.getElementById('bouquet-img').style.display = 'none';
+            const tpcLogo = document.getElementById('tpc-logo');
+            tpcLogo.style.display = 'block';
+            setTimeout(() => { tpcLogo.style.opacity = '0.4'; }, 50);
+
+            // BẮT ĐẦU CHẠY ẢNH CHIA LÀN ĐỀU ĐẶN
+            setTimeout(startPhotoSequenceDeterministic, 500); 
+        });
+
+        let typeSpeed = 50;
+        function typeWriterEffect() {
+            typedText.innerHTML = ''; let i = 0;
+            function type() {
+                if (i < letterText.length) {
+                    if (letterText.charAt(i) === '<') {
+                        let tag = ''; while (letterText.charAt(i) !== '>') { tag += letterText.charAt(i); i++; }
+                        tag += '>'; typedText.innerHTML += tag; i++;
+                    } else { typedText.innerHTML += letterText.charAt(i); i++; }
+                    setTimeout(type, typeSpeed);
+                } else {
+                    btnContinue.style.opacity = '1'; btnContinue.style.pointerEvents = 'auto';
+                }
+            }
+            type();
+        }
+
+        const petals = ['🌸', '🌺', '🌷', '✨', '🌹'];
+        function spawnPetal() {
+            const petal = document.createElement('div');
+            petal.className = 'flying-petal';
+            petal.innerText = petals[Math.floor(Math.random() * petals.length)];
+            petal.style.left = (Math.random() * 30 + 35) + 'vw'; 
+            petal.style.animationDuration = (Math.random() * 4 + 5) + 's';
+            flyContainer.appendChild(petal);
+            setTimeout(() => petal.remove(), 9000);
+        }
+
+        // ================= LOGIC MỚI: BẮN TỪNG ẢNH MỘT, CHIA 3 LÀN CỐ ĐỊNH =================
+        function startPhotoSequenceDeterministic() {
+            let index = 0;
+            const numLanes = 3; // 3 làn đường an toàn
+            const totalAvailableWidth = 80; // Phạm vi từ 10vw đến 90vw
+            const laneWidth = totalAvailableWidth / numLanes;
+
+            function spawnNextPhoto() {
+                if (index < photoUrls.length) {
+                    // Xoay vòng nhét ảnh vào 3 làn: 0, 1, 2, 0, 1, 2...
+                    let laneIndex = index % numLanes;
+                    let leftPos = 10 + (laneIndex * laneWidth) + (laneWidth / 2);
+                    
+                    // Thêm rung lắc nhẹ ngang để không bị cứng ngắc như xếp gạch
+                    let horizontalJitter = Math.random() * (laneWidth * 0.4) - (laneWidth * 0.2);
+                    
+                    spawnPhoto(photoUrls[index], leftPos + horizontalJitter);
+                    
+                    index++;
+                    
+                    // KHOẢNG TRỄ CỐ ĐỊNH GIỮA CÁC ẢNH: 2000ms (2 giây)
+                    // (Bạn có thể tăng lên 2500 hoặc giảm 1500 tùy độ dày muốn có)
+                    const RELEASE_INTERVAL = 2000; 
+
+                    setTimeout(spawnNextPhoto, RELEASE_INTERVAL);
+                } else {
+                    // Sau khi bắn ảnh cuối cùng, đợi 15 giây cho nó bay lên an toàn rồi hiện Cảm Ơn
+                    setTimeout(() => {
+                        thankYouCard.classList.remove('hidden');
+                    }, 15000);
+                }
+            }
+            spawnNextPhoto();
+        }
+
+        function spawnPhoto(src, leftPos) {
+            const img = document.createElement('img');
+            img.className = 'floating-photo';
+            img.src = src; 
+            
+            img.style.left = leftPos + 'vw';
+            
+            // Giảm góc nghiêng (-12 đến 12 độ)
+            const rot = Math.random() * 24 - 12;
+            img.style.setProperty('--start-rot', rot + 'deg');
+            
+            // Giảm biên độ lắc lư ngang để không lấn làn
+            const sway = Math.random() * 30 - 15;
+            img.style.setProperty('--sway', sway);
+            
+            // Tốc độ chậm & Nhất quán: 15 đến 18 giây
+            const duration = (Math.random() * 3 + 15);
+            img.style.animationDuration = duration + 's';
+
+            flyContainer.appendChild(img);
+
+            setTimeout(() => img.remove(), duration * 1000);
+        }
+    </script>
+</body>
+</html>
