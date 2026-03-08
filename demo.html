@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quà Tặng 8/3 - The Pizza Company (Khắc phục đè ảnh)</title>
+    <title>Quà Tặng 8/3 - The Pizza Company</title>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* ================= CÀI ĐẶT CHUNG ================= */
@@ -82,7 +82,8 @@
             border-radius: 20px; position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.6);
             border: 4px dashed #f06292;
         }
-        .letter-content { font-family: 'Dancing Script', cursive; font-size: 28px; color: #d81b60; line-height: 1.8; min-height: 300px; }
+        /* Giảm nhẹ line-height ở bản PC cho gọn gàng hơn */
+        .letter-content { font-family: 'Dancing Script', cursive; font-size: 28px; color: #d81b60; line-height: 1.6; min-height: 300px; }
         .cursor { display: inline-block; width: 3px; height: 25px; background-color: #d81b60; animation: blink 0.7s infinite; }
         .btn-continue {
             display: block; margin: 30px auto 0; background: #e91e63; color: white; border: none;
@@ -103,7 +104,7 @@
         .thank-you-card p { font-size: 22px; color: #333; line-height: 1.6; font-family: 'Nunito', sans-serif; }
         .signature { display: block; margin-top: 25px; font-family: 'Dancing Script', cursive; color: #d81b60; font-size: 28px; font-weight: bold; }
 
-        /* ================= STEP 4: ẢNH BAY (ĐÃ SỬA VẬT LÝ CSS) ================= */
+        /* ================= STEP 4: ẢNH BAY ================= */
         .flying-petal {
             position: fixed; bottom: -50px; z-index: 4; font-size: 20px;
             filter: drop-shadow(0 0 10px rgba(255,105,180,0.5)); animation: floatUpPetal linear forwards;
@@ -117,17 +118,24 @@
             animation: flyUpAndSway linear forwards; transform-origin: center;
         }
 
-        /* ================= MOBILE OPTIMIZATION ================= */
+        /* ================= MOBILE OPTIMIZATION (ĐÃ TỐI ƯU LẠI CHỮ) ================= */
         @media (max-width: 600px) {
             .circle-icon { width: 120px; height: 120px; font-size: 60px; }
             .step1-content h1 { font-size: 32px; margin-bottom: 30px; }
             #bouquet-img { max-width: 300px; }
             #tpc-logo { max-width: 220px; }
             .envelope { font-size: 24px; padding: 10px 20px; bottom: 25%; }
-            .letter-paper { padding: 30px 20px; }
-            .letter-content { font-size: 22px; min-height: 250px; }
+            
+            /* Tối ưu khung thư: Thêm scroll nếu chữ quá dài, giảm padding */
+            .letter-paper { padding: 25px 15px; width: 92%; max-height: 80vh; overflow-y: auto; }
+            
+            /* Tối ưu chữ: Giảm size chữ và ép chặt khoảng cách dòng */
+            .letter-content { font-size: 20px; min-height: auto; line-height: 1.4; }
+            
             .floating-photo { width: 95px; height: 125px; border-width: 5px; border-bottom-width: 18px; }
             .thank-you-card { padding: 30px 20px; width: 90%; }
+            .thank-you-card p { font-size: 18px; }
+            .signature { font-size: 24px; }
         }
 
         /* ================= KEYFRAMES ================= */
@@ -137,7 +145,6 @@
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         @keyframes floatUpPetal { 0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(-110vh) rotate(360deg) translateX(-50px); opacity: 0; } }
         
-        /* Đã giảm độ lắc ngang ở keyframes để ảnh đi thẳng hơn */
         @keyframes flyUpAndSway {
             0% { transform: translateY(0) translateX(0) rotate(var(--start-rot)); opacity: 0; }
             5% { opacity: 1; }
@@ -146,7 +153,6 @@
             100% { transform: translateY(-140vh) translateX(calc(var(--sway) * -0.5px)) rotate(var(--start-rot)); opacity: 0; }
         }
 
-        /* ----- HIỆU ỨNG THẺ CẢM ƠN ----- */
         @keyframes popInCard {
             0% { opacity: 0; transform: translate(-50%, -10%) scale(0.5); }
             50% { opacity: 1; transform: translate(-50%, -55%) scale(1.05); }
@@ -317,7 +323,6 @@
                     index++;
                     
                     // KHOẢNG TRỄ CỐ ĐỊNH GIỮA CÁC ẢNH: 2000ms (2 giây)
-                    // (Bạn có thể tăng lên 2500 hoặc giảm 1500 tùy độ dày muốn có)
                     const RELEASE_INTERVAL = 2000; 
 
                     setTimeout(spawnNextPhoto, RELEASE_INTERVAL);
